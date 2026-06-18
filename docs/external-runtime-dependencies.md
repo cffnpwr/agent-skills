@@ -70,7 +70,7 @@ pnpm install
 ```sh
 # 依存が解決済みか確認する。未解決なら pnpm installをユーザーに促して停止。
 pnpm ls --depth -1 >/dev/null 2>&1 || {
-  echo "依存が未インストール。'pnpm install'を実行してから再試行すること。" >&2
+  echo "Dependencies not installed. Run 'pnpm install' and retry." >&2
   exit 1
 }
 ```
@@ -90,7 +90,7 @@ uv sync
 ```sh
 # 同期済みか確認する。未同期なら uv syncをユーザーに促して停止。
 uv sync --check >/dev/null 2>&1 || {
-  echo "依存が未同期。'uv sync'を実行してから再試行すること。" >&2
+  echo "Dependencies not synced. Run 'uv sync' and retry." >&2
   exit 1
 }
 ```
@@ -101,8 +101,8 @@ uv sync --check >/dev/null 2>&1 || {
 
 ```sh
 # 存在確認とバージョン要件のチェック。欠けていれば停止・エスカレーション。
-command -v gh >/dev/null 2>&1 || { echo "ghが見つからない。" >&2; exit 1; }
-command -v jq >/dev/null 2>&1 || { echo "jqが見つからない。" >&2; exit 1; }
+command -v gh >/dev/null 2>&1 || { echo "gh not found." >&2; exit 1; }
+command -v jq >/dev/null 2>&1 || { echo "jq not found." >&2; exit 1; }
 ```
 
 ## `## Requirements`テンプレート
