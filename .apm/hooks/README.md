@@ -1,11 +1,8 @@
 # APM hooks
 
 APM(Agent Package Manager)が各Harnessにデプロイするhookを置く。
-ここでのHarnessはhookプロトコルを実装するホスト実行環境(Claude Code、Codex CLI、Gemini CLI、GitHub Copilot CLI等)を指し、推論を行うAIモデルとは区別する。
-
-`*.json`(直下のみ)がhookマニフェスト、`scripts/<hook名>/`がその実装。
-マニフェストはネストしたサブディレクトリでは探索されない(APMの探索は`glob("*.json")`非再帰)。
-そのため`scripts/`配下の開発ツーリング(`package.json`・`tsconfig.json`等)はマニフェストとして誤検知されない。
+hook全般の設計方針は[Hook機構](../../docs/design-doc/hooks.md)を参照。
+以下は具体例としてのjj-commitlintの実装説明。
 
 ## jj-commitlint
 
