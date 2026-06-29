@@ -65,6 +65,8 @@ AIエージェントは対話的TUI・エディタを操作できない。以下
 | 新規作業を開始 | `git checkout -b feat` | `jj new -m "feat"` |
 | mainから開始 | `git checkout -b feat main` | `jj new main -m "feat"` |
 | メッセージ修正 | `git commit --amend` | `jj describe -m "new msg"` |
+| 著者を変更 | `git commit --amend --author="N <e>"` | `jj metaedit --author "N <e>" -r REV` |
+| 著者を設定ユーザーに更新 | `git commit --amend --reset-author` | `jj metaedit --update-author -r REV` |
 | ファイル修正の取り込み | `git add .; git commit --amend` | （ファイルを編集するだけ — `@`が自動更新） |
 | 退避（stash） | `git stash` | `jj new @-`（元のchangeは兄弟として残る） |
 | changeへ切り替え | `git checkout X` | `jj edit X` |
@@ -93,6 +95,52 @@ AIエージェントは対話的TUI・エディタを操作できない。以下
 | revのファイル内容を表示 | `git show REV:FILE` | `jj file show FILE -r REV` |
 | 追跡ファイル一覧 | `git ls-files` | `jj file list` |
 | リモート追加 | `git remote add NAME URL` | `jj git remote add NAME URL` |
+
+## 著者(author)の指定・変更
+
+`jj describe`・`jj commit`には`--author`オプションが無い。著者(author)はコミット作成時の設定値から決まり、既存changeの著者変更は`jj metaedit`で行う。
+
+### 新規コミットの著者を決める
+
+新規に作るchangeの著者は、次の優先で解決される（いずれも未設定だと著者欄が空になる）。
+
+- 永続設定 `user.name` / `user.email`
+- 環境変数 `JJ_USER` / `JJ_EMAIL`（その実行に限り上書き）
+- `--config user.name=...` / `--config user.email=...`（同上）
+
+```bash
+# 永続設定（ユーザー全体）
+jj config set --user user.name "Foo Bar"
+jj config set --user user.email "foo@bar.com"
+
+# このリポジトリのみ
+jj config set --repo user.email "foo@work.example.com"
+
+# 単発の実行だけ別著者で（環境変数 / --config いずれでも可）
+JJ_USER="Foo Bar" JJ_EMAIL="foo@bar.com" jj commit -m "msg"
+jj commit -m "msg" --config user.name="Foo Bar" --config user.email="foo@bar.com"
+```
+
+### 既存changeの著者を変更する
+
+`jj metaedit`は内容を変えずにメタデータ（著者・著者日時・change description）のみを更新する。対象revisionの既定は`@`。
+
+```bash
+# 著者名・メールを指定文字列に設定（著者日時は保持）
+jj metaedit --author "Foo Bar <foo@bar.com>" -r REV
+
+# 著者を設定ユーザー(user.name/user.email)に更新。JJ_USER/JJ_EMAILと併用可
+jj metaedit --update-author -r REV
+JJ_USER="Foo Bar" JJ_EMAIL="foo@bar.com" jj metaedit --update-author -r REV
+
+# 著者日時を現在時刻に更新（著者名・メールは変えない）
+jj metaedit --update-author-timestamp -r REV
+
+# 著者日時を指定日時に設定（RFC2822 または RFC3339）
+jj metaedit --author-timestamp "2000-01-23T01:23:45-08:00" -r REV
+```
+
+メタデータを更新すると、その子孫コミットのcommitter名・メール・日時も更新される。
 
 ## コンフリクト解決
 
